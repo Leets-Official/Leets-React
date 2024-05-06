@@ -421,3 +421,662 @@ State = 현재 가지고 있는 상태나 모양을 정의
 → State값에 따라 랜더링되는 UI가 결정된다.
 
 - Re-Render(리 렌더), Re-Rendering(리 렌더링) = 컴포넌트가 다시 렌더링되는 상황
+- 하나의 컴포넌트에 여러 개의 state 넣을 수 있다.
+- 가변적인 값을 화면에 랜더링해주고 싶으면 일반 변수가 아닌 state로 처리해야 함!
+
+```jsx
+import "./App.css";
+import { useState } from "react";
+
+function App() {
+	//state 값이 변했을 때만 rerendering..
+  const [count, setCount] = useState(0); //초기값 넣어서 시작! 
+  // count=초기값(현재값), setCount= 변하게 하는 함수
+  const [light, setLight] = useState("OFF");
+  
+  // 버튼 누를 때마다 1씩 증가함
+  return (
+    <> 
+    <div>
+      <h1>{light}</h1>
+      <button
+       onClick = {()=> {
+        setLight(light === "ON" ? "OFF" : "ON");
+      }}
+      >
+        {light === "ON" ? "끄기" : "켜기"}
+      </button>
+    </div>
+    <div>
+      <h1>{count}</h1>
+        <button
+          onClick = {() => {
+            setCount(count+1);
+          }}
+        >
+          +
+        </button>
+    </div>
+      
+    </>
+  );
+}
+
+export default App;
+
+```
+
+## 7. State룰 Props로 전달하
+
+React에서 Re rendering 될 때
+
+1. state가 변경되었을 때
+2. props가 변경되었을 때
+3. 부모 component 렌더링 → 자식도 마찬가지!
+
+- 불필요한 렌더링을 줄일 수 있음
+
+```jsx
+import "./App.css";
+import { useState } from "react";
+
+const Bulb = ()=>{
+  const [light, setLight] = useState("OFF");
+
+  console.log(light);
+  return (
+    <div>
+      {light==='ON'? (
+        <h1 style = {{backgroundColor:"orange"}}>ON</h1> 
+      )  : (
+        <h1 style = {{backgroundColor: "gray"}}>OFF</h1>
+        )}
+
+<button
+       onClick = {()=> {
+        setLight(light === "ON" ? "OFF" : "ON");
+      }}
+      >
+        {light === "ON" ? "끄기" : "켜기"}
+      </button>
+    </div>
+        
+  );
+};
+
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+    <h1>{count}</h1>
+      <button
+        onClick = {() => {
+          setCount(count+1);
+        }}
+      >
+        +
+      </button>
+  </div>
+  );
+}
+
+function App() {
+ 
+  // count=초기값(현재값), setCount= 변하게 하는 함수
+  
+  // 버튼 누를 때마다 1씩 증가함
+  return (
+    <> 
+    <Bulb />
+    <Counter />
+    </>
+  );
+}
+
+export default App;
+
+```
+
+```jsx
+//App.jsx
+
+import "./App.css";
+
+import Bulb from './components/Bulb';
+import Counter from './components/Counter';
+
+function App() {
+  // count=초기값(현재값), setCount= 변하게 하는 함수
+  
+  // 버튼 누를 때마다 1씩 증가함
+  return (
+    <> 
+      <Bulb />
+      <Counter />
+    </>
+  );
+}
+
+export default App;
+```
+
+```jsx
+// Bulb.jsx
+
+import {useState} from "react";
+
+const Bulb = ()=>{
+    const [light, setLight] = useState("OFF");
+  
+    console.log(light);
+    return (
+      <div>
+        {light==='ON'? (
+          <h1 style = {{backgroundColor:"orange"}}>ON</h1> 
+        )  : (
+          <h1 style = {{backgroundColor: "gray"}}>OFF</h1>
+          )}
+  
+        <button
+            onClick = {()=> {
+                setLight(light === "ON" ? "OFF" : "ON");
+            }}
+        >
+            {light === "ON" ? "끄기" : "켜기"}
+        </button>
+    </div>            
+    );
+  };
+
+  export default Bulb;
+```
+
+```jsx
+//Counter.jsx
+
+import {useState} from "react";
+
+const Counter = () => {
+    const [count, setCount] = useState(0);
+  
+    return (
+      <div>
+      <h1>{count}</h1>
+        <button
+          onClick = {() => {
+            setCount(count+1);
+          }}
+        >
+          +
+        </button>
+    </div>
+    );
+  };
+
+  export default Counter;
+```
+
+## 8. State로 사용자 입력 관리하기1
+
+1. 함수의 return 안에 있는 <div>태그에 원하는 속성에 관한 변수 추가
+    
+    ( 아니면 원하는 태그 사용)
+    
+2. state 추가 (const [name, setName] = useState("이름");)
+3. 이벤트 함수 만들기 (onChangeName = (e) ⇒ { )
+4. 1번 과정에서의 태그 안에 설정(<textarea value ={bio} onChange={onChangeBio} />)
+
+e.g.,
+
+1. 이름 입력 받기
+    
+    → input태그 사용(한줄만 입력받기)
+    
+    ```jsx
+    import {useState} from 'react';
+    // 간단한 회원가입 폼
+    // 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+    
+    const Register = ()=> {
+    
+        const [name, setName] = useState("이름"); //초기값 설정("이름"을 빈 괄호에 일부러 넣음)
+    
+        const onChangeName = (e) => {
+            setName(e.target.value); // -> input으로 인해 알게된 경로(?)
+        } // 이벤트 객체
+          
+        return (
+         <div>
+           <input 
+           value = {name}
+           onChange = {onChangeName} 
+           placeholder = {"이름"} 
+           />
+           {name}
+         </div>
+        );
+    };
+    
+    export default Register;
+    ```
+    
+2. 생년월일 입력 받기
+    
+    ```jsx
+    import {useState} from 'react';
+    // 간단한 회원가입 폼
+    // 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+    
+    const Register = ()=> {
+    
+        const [name, setName] = useState("이름"); //state로 보관하기
+        const [birth, setBirth] = useState("");
+    
+        const onChangeName = (e) => {
+            setName(e.target.value);
+        }
+    
+        const onChangeBirth = (e) => {
+            setBirth(e.target.value);
+        }
+          
+        return (
+         <div>
+            <div>
+                <input 
+                   value = {name}
+                   onChange = {onChangeName} 
+                   placeholder = {"이름"} 
+           />
+           </div>
+    
+            <div>
+            <input 
+            value = {birth}
+            onChange={onChangeBirth}
+            type = "date" 
+            />
+            {birth}
+            </div>
+         </div>
+        );
+    };
+    
+    export default Register;
+    ```
+    
+3. 국적 입력 받기
+    
+    → 국적처럼 사용자가 한정된 선택지 중 선택을 해야하는 상황이면 <select> 이용
+    
+    → <select> 안에 <option>
+    
+    → <option value="korea">한국</option>처럼 선택지:한국, 출력값:korea(간결)
+    
+    ```jsx
+    import {useState} from 'react';
+    // 간단한 회원가입 폼
+    // 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+    
+    const Register = ()=> {
+    
+        const [name, setName] = useState("이름"); //state로 보관하기
+        const [birth, setBirth] = useState("");
+        const [country, setCountry] = useState("");
+    
+        const onChangeName = (e) => {
+            setName(e.target.value);
+        }
+    
+        const onChangeBirth = (e) => {
+            setBirth(e.target.value);
+        }
+          
+        const onChangeCountry = (e) => {
+            setCountry(e.target.value);
+        }
+    
+        return (
+         <div>
+            <div>
+                <input 
+                   value = {name}
+                   onChange = {onChangeName} 
+                   placeholder = {"이름"} 
+           />
+           </div>
+    
+            <div>
+            <input 
+            value = {birth}
+            onChange={onChangeBirth}
+            type = "date" 
+            />
+            {birth}
+            </div>
+    
+            <div>
+                <select value={country} onChange = {onChangeCountry}>
+                    <option></option> 
+                    <option value="korea">한국</option> 
+                    <option value="us">미국</option>
+                    <option value="uk">영국</option>
+                </select>
+                {country}
+            </div>
+         </div>
+        );
+    };
+    
+    export default Register;
+    ```
+    
+
+1. 자기소개
+    
+    → <input /> = 사용자가 한 줄 입력
+    
+    → <textarea /> = 사용자가 여러 줄 입력 가능
+    
+    ```jsx
+    import {useState} from 'react';
+    // 간단한 회원가입 폼
+    // 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+    
+    const Register = ()=> {
+    
+        const [name, setName] = useState("이름"); //state로 보관하기
+        const [birth, setBirth] = useState("");
+        const [country, setCountry] = useState("");
+        const [bio, setBio] = useState("");
+    
+        const onChangeName = (e) => {
+            setName(e.target.value);
+        }
+    
+        const onChangeBirth = (e) => {
+            setBirth(e.target.value);
+        }
+          
+        const onChangeCountry = (e) => {
+            setCountry(e.target.value);
+        }
+    
+        const onChangeBio = (e) => {
+            setBio(e.target.value);
+        }
+    
+        return (
+         <div>
+            <div>
+                <input 
+                   value = {name}
+                   onChange = {onChangeName} 
+                   placeholder = {"이름"} 
+           />
+           </div>
+    
+            <div>
+            <input 
+            value = {birth}
+            onChange={onChangeBirth}
+            type = "date" 
+            />
+            {birth}
+            </div>
+    
+            <div>
+                <select value={country} onChange = {onChangeCountry}>
+                    <option></option> 
+                    <option value="korea">한국</option> 
+                    <option value="us">미국</option>
+                    <option value="uk">영국</option>
+                </select>
+                {country}
+            </div>
+    
+            <div>
+                <textarea value ={bio} onChange={onChangeBio} />
+                {bio}
+            </div>
+         </div>
+        );
+    };
+    
+    export default Register;
+    ```
+    
+
+## 9. State로 사용자 입력 관리하기2
+
+→ 목적 : 8(위)에서의 중복되는 비효율적인 코드를 수정하기 위함
+
+→ 스프레드 함수(…input) 쓰는 이유=기존에 입력했던 값들도 반영해주려고
+
+```jsx
+import {useState} from 'react';
+// 간단한 회원가입 폼
+// 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+
+const Register = ()=> {
+
+    const [input, setInput] = useState({
+        name : "",
+        birth: "",
+        country : "",
+        bio: "",
+    });
+
+    const onChange = (e) => { // 통합이벤트핸들러
+        setInput({
+            ...input,
+            [e.target.name]: e.target.value, //property의 key 설정(e.target.name = birth,...,)
+        });
+    };
+
+    return (
+     <div>
+        <div>
+        <input
+            name="name"
+            value = {input.name}
+            onChange = {onChange} 
+            placeholder = {"이름"} 
+       />
+       </div>
+
+        <div>
+        <input 
+            name="birth"
+            value = {input.birth}
+            onChange={onChange}
+            type = "date" 
+        />
+        </div>
+
+        <div>
+            <select 
+            name = "country"
+            value={input.country} 
+            onChange = {onChange}
+            >
+                <option value=""></option> 
+                <option value="korea">한국</option> 
+                <option value="us">미국</option>
+                <option value="uk">영국</option>
+            </select>
+        </div>
+
+        <div>
+            <textarea 
+            name="bio"
+            value ={input.bio} 
+            onChange={onChange} 
+            />
+        </div>
+     </div>
+    );
+};
+
+export default Register;
+```
+
+## 10. useRef로 컴포넌트의 변수 생성하기
+
+= 새로운 reference 객체를 생성하는 기능
+
+e.g., const refObject = useRef()
+
+           컴포넌트 내부의 변수
+
+- useRef
+    
+    = Reference 객체 생성
+    
+    - 컴포넌트 내부 변수로 활용가능
+    - 어떤 경우에도 리렌더링 유발 X (새로고침X ?)
+    - 원하는 요소 바로바로 조작 가능!
+- useState
+    
+    = State 생성
+    
+    - 컴포넌트 내부 변수로 활용 가능
+    - 값 변경되면 컴포넌트 리렌더링
+
+![Untitled](ch05%20React%20js%20%E1%84%8B%E1%85%B5%E1%86%B8%E1%84%86%E1%85%AE%E1%86%AB%20c03b86c334c0461bb4a9b944d623940a/Untitled%205.png)
+
+→ countRef = 리렌더링 안 해도 됨!
+
+```jsx
+import {useRef, useState} from 'react';
+
+// 간단한 회원가입 폼
+// 1. 이름, 2. 생년월일 3. 국적 4. 자기소개
+
+const Register = ()=> {
+
+    const [input, setInput] = useState({
+        name : "",
+        birth: "",
+        country : "",
+        bio: "",
+    });
+
+    const countRef = useRef(0);
+    const inputRef = useRef();
+
+    const onChange = (e) => { // 통합이벤트핸들러
+        countRef.current++;
+        console.log(countRef.current);
+        setInput({
+            ...input,
+            [e.target.name]: e.target.value, //property의 key 설정(e.target.name = birth,...,)
+        });
+    };
+
+    const onSubmit = () => {
+        if(input.name === ""){
+            //이름을 입력하는 DOM 요소 포커스
+            inputRef.current.focus();
+        }
+    }
+
+    return (
+     <div>
+        
+        <div>
+        <input
+            ref={inputRef}
+            name="name"
+            value = {input.name}
+            onChange = {onChange} 
+            placeholder = {"이름"} 
+       />
+       </div>
+
+        <div>
+        <input 
+            name="birth"
+            value = {input.birth}
+            onChange={onChange}
+            type = "date" 
+        />
+        </div>
+
+        <div>
+            <select 
+            name = "country"
+            value={input.country} 
+            onChange = {onChange}
+            >
+                <option value=""></option> 
+                <option value="korea">한국</option> 
+                <option value="us">미국</option>
+                <option value="uk">영국</option>
+            </select>
+        </div>
+
+        <div>
+            <textarea 
+            name="bio"
+            value ={input.bio} 
+            onChange={onChange} 
+            />
+        </div>
+
+        <button onClick={onSubmit}>제출</button>
+     </div>
+    );
+};
+
+export default Register;
+```
+
+useref = 
+
+## 11. React Hooks
+
+React Hooks = 클래스 컴포넌트(복잡) 기능을 함수 컴포넌트(간단)에서도 이용할 수 있도록 도움
+
+→ 함수 컴포넌트 내부에서만 호출 가능
+
+→ 조건문, 반복문 내부에서는 호출 불가
+
+→ use를 이용해서 나만의 Hook 만들기 가
+
+- useState = State 기능을 낚아채오는 Hook
+- useRef = Reference 기능을 낚아채오는 Hook
+
+```jsx
+import {useState} from "react";
+//3가지 hook 관련 팁
+// 1. 함수 컴포넌트, 커스텀 훅 내부에서만 호출 가능
+// 2. 조건부로 호출 X
+// 3. 나만의 훅(Custom Hook) 직접 만들 수 있다.
+
+function useInput(){
+    const [input, setInput] = useState("");
+
+    const onChange = (e) => {
+        setInput(e.target.value);
+    }
+
+    return [input, onChange];
+}
+
+const HookExam = () => {    
+
+    const [input, onChange] = useInput();
+
+    return (
+    <div>
+        <input value={input} onChange={onChange} />
+        </div>
+    );
+};
+
+export default HookExam;
+```
+
+##
