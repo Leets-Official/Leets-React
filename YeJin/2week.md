@@ -1,4 +1,4 @@
-# 1주차
+# 2주차
 
 **강의**
 [인프런] - 한입 크기로 잘라머는 리액트(React.js) : 기초부터 실전까지
@@ -679,6 +679,297 @@ export default Register;
 - 함수컴포넌트 내에서만 호출 가능
 - 조건문, 반복문 내부에서는 호출 불가
 - custom hook 제작 가능 (함수 이름 앞ㅊ에 use만 붙이면 됨!)
+
+# 프로젝트1 : 카운터
+
+## App.jsx
+
+```jsx
+import "./App.css";
+import Viewer from "./components/Viewer";
+import Controller from "./components/Controller";
+import { useState } from "react";
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  const onClickButton = (value) => {
+    setCount(count + value);
+  };
+
+  return (
+    <div className="App">
+      <h1>Simple Counter</h1>
+
+      <section>
+        <Viewer count={count} />
+      </section>
+
+      <section>
+        <Controller onClickButton={onClickButton} />
+      </section>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Viewer.jsx
+
+```jsx
+const Viewer = ({ count }) => {
+  return (
+    <div>
+      <div>현재 카운트:</div>
+      <h1>{count}</h1>
+    </div>
+  );
+};
+
+export default Viewer;
+```
+
+## Controller.jsx
+
+```jsx
+const Controller = ({ onClickButton }) => {
+  return (
+    <div>
+      <button
+        onClick={() => {
+          onClickButton(-1);
+        }}
+      >
+        -1
+      </button>
+      <button
+        onClick={() => {
+          onClickButton(-10);
+        }}
+      >
+        -10
+      </button>
+      <button
+        onClick={() => {
+          onClickButton(-100);
+        }}
+      >
+        -100
+      </button>
+      <button
+        onClick={() => {
+          onClickButton(100);
+        }}
+      >
+        +100
+      </button>
+      <button
+        onClick={() => {
+          onClickButton(10);
+        }}
+      >
+        +10
+      </button>
+      <button
+        onClick={() => {
+          onClickButton(1);
+        }}
+      >
+        +1
+      </button>
+    </div>
+  );
+};
+
+export default Controller;
+```
+
+## App.css
+
+```jsx
+body {
+    padding: 20px;
+}
+
+.App{
+    margin: 0 auto;
+    width: 400px;
+}
+
+.App > section {
+    background-color: rgb(245, 245, 245);
+    border: 1px solid (240, 240, 240);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+}
+```
+
+- 특정 컴포넌트가 다른 컴포넌트로 데이터를 전달할 때, 두 컴포넌트는 부모자식관계여야 함
+- 하나의 state를 여러 컴포넌트에서 관리하게 될 경우 state는 공통 부모가 되는 곳에 만들어야 함
+
+- props라는 기능을 이용하여 부모→자식 방향으로만 데이터 전달 가능 =단방향 데이터 흐름
+
+# 라이프 사이클
+
+1. Mount
+
+   컴포넌트가 탄생하는 순간
+
+   화면에 처음 렌더링 되는 순간
+
+2. Update
+
+   컴포넌트가 다시 렌더링 되는 순간
+
+   리렌더링 될 때를 의미
+
+3. UnMount
+
+   컴포넌트가 화면에서 사라지는 순간
+
+   렌더링에서 제외 되는 순간을 의미
+
+## 사이드 이펙트 - 파생되는 효과
+
+컴포넌트의 동작에 따라 파생되는 여러 효과
+
+![Untitled](%E1%84%85%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%91%E1%85%B3%20%E1%84%89%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8F%E1%85%B3%E1%86%AF%20f67bb778d7d14b4685125a96888a046b/Untitled.png)
+
+## useEffect
+
+```jsx
+useEffect(() => {}, []);
+```
+
+배열에 들어가 있는 값이 변하면 사이드 이펙트로서 콜백함수를 호출
+
+- useEffect는 두번째 인수로 전달한 배열에 의존함 → 의존성 배열(deps)
+
+## 카운터 앱 예제로 useEffect 사용하기
+
+```jsx
+import "./App.css";
+import Viewer from "./components/Viewer";
+import Controller from "./components/Controller";
+import { useState, useEffect } from "react";
+
+function App() {
+  const [count, setCount] = useState(0);
+  const [input, setInput] = useState(0);
+
+  useEffect(() => {
+    console.log(`count: ${count} / input: ${input}`);
+  }, [count, input]);
+
+  const onClickButton = (value) => {
+    setCount(count + value);
+  };
+
+  return (
+    <div className="App">
+      <h1>Simple Counter</h1>
+      <section>
+        <input
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
+        />
+      </section>
+
+      <section>
+        <Viewer count={count} />
+      </section>
+
+      <section>
+        <Controller onClickButton={onClickButton} />
+      </section>
+    </div>
+  );
+}
+
+export default App;
+```
+
+```jsx
+const onClickButton = (value) => {
+  setCount(count + value);
+  console.log(count);
+};
+```
+
+useEffect를 사용하지 않고 onClickButton 함수에서 count값을 콘솔에 출력하게 되면 올바르게 출력되지 않는다
+
+→ 리액트의 state는 비동기적으로 업데이트 되기 때문에, 위와 같은 경우 setCount 함수가 종료되기 전 console.log가 실행됨. → count의 값이 변하지 않은 채로 출력
+
+- 변경된 state 값을 이용하여 사이드이펙트 작업을 하기 위해서는 꼭 useEffect를 사용하여야 함
+
+## useEffect로 라이프사이클 제어하기
+
+1. Mount
+
+```jsx
+useEffect(() => {
+  console.log("mount");
+}, []);
+```
+
+deps를 빈 배열로 주면 마운트 시 한번만 실행됨
+
+1. Update
+
+```
+useEffect(()=>{
+    console.log("update");
+  });
+```
+
+deps를 생략하면 update 될 때마다 실행
+
+- 마운트 시에는 생략하고, update될 때만 실행하고 싶다면
+
+```
+import {useState, useEffect, useRef);
+
+function App(){
+	const isMount = useRef(false);
+
+	useEffect(()=>{
+		if(!isMount.current){
+			isMount.current = true;
+			return;
+		}
+    console.log("update");
+  });
+}
+```
+
+1. unMount
+
+```
+import { useEffect } from "react";
+
+const Even= ()=>{
+    useEffect(()=>{
+	    //정리함수
+        return () => {
+            console.log("unmount");
+        };
+    }, []);
+
+    return <div>짝수입니다</div>
+}
+
+export default Even;
+```
+
+useEffect의 콜백함수가 반환하는 함수 : 정리함수 → useEffect가 끝날 때 실행
+
+Even() : 마운트 시 실행
+
+정리함수: 마운트가 종료될 때 실행
 
 </br>
 
