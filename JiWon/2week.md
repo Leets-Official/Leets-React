@@ -1305,8 +1305,4 @@ const Even = () => {
 export default Even;
 ```
 
-<<<<<<< HEAD
 7.4) React 개발자 도구 사용하기
-=======
-7.4) React 개발자 도구 사용하기
->>>>>>> e712b15f646417e3ec34e5253b69df7e0db4081c
