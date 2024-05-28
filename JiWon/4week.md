@@ -1972,5 +1972,6 @@ export default App
 12.19) 배포하기
 
 vercel 회원가입
+터미널에 vercel 다운받기
 
 [https://emotion-diary-jfg67ewxo-kimjiwons-projects.vercel.app/](https://emotion-diary-jfg67ewxo-kimjiwons-projects.vercel.app/)
